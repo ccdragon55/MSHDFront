@@ -3,14 +3,15 @@ import { createRouter, createWebHistory, type RouteRecordRaw } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import Home from '../components/Home.vue'
 import Login from '../components/Login.vue'
+import BloodPressure from '../components/BloodPressure.vue'
 import Register from '@/components/Register.vue'
 import ForgetPassword from '@/components/ForgetPassword.vue'
-import DisasterInformation from '@/components/DisasterInformation.vue'
-import DisasterDataManagement from '@/components/DisasterDataManagement.vue'
+import HealthAdvice from '@/components/HealthAdvice.vue'
+import Medicine from '@/components/Medicine.vue'
 import SetPassword from '@/components/SetPassword.vue'
 import Profile from '@/components/Profile.vue'
 import AccountManagement from '../components/AccountManagement.vue'
-import DisasterInformationAdmin from '@/components/DisasterInformationAdmin.vue'
+import HealthAdviceAdmin from '@/components/HealthAdviceAdmin.vue'
 
 import DataPresentation from '@/components/DataPresentation.vue'
 const routes: Array<RouteRecordRaw> = [
@@ -25,6 +26,11 @@ const routes: Array<RouteRecordRaw> = [
     component: Login
   },
   {
+    path: '/bloodPressure',
+    name: 'BloodPressure',
+    component: BloodPressure
+  },
+  {
     path: '/register',
     name: 'Register',
     component: Register
@@ -35,14 +41,14 @@ const routes: Array<RouteRecordRaw> = [
     component: ForgetPassword
   },
   {
-    path: '/disasterInformation',
-    name: 'DisasterInformation',
-    component: DisasterInformation
+    path: '/healthAdvice',
+    name: 'HealthAdvice',
+    component: HealthAdvice
   },
   {
-    path: '/disasterDataManagement',
-    name: 'DisasterDataManagement',
-    component: DisasterDataManagement
+    path: '/medicine',
+    name: 'Medicine',
+    component: Medicine
   },
   {
     path: '/setPassword',
@@ -60,9 +66,9 @@ const routes: Array<RouteRecordRaw> = [
     component: AccountManagement
   },
   {
-    path: '/disasterInformationAdmin',
-    name: 'DisasterInformationAdmin',
-    component: DisasterInformationAdmin
+    path: '/healthAdviceAdmin',
+    name: 'HealthAdviceAdmin',
+    component: HealthAdviceAdmin
   },
   {
     path: '/dataPresentation',
@@ -87,7 +93,7 @@ router.beforeEach((to, from, next) => {
   } 
   // 检查用户是否已登录
   else if(token===null){
-    if (to.name === 'Profile' || to.name ==='DataPresentation') {
+    if (to.name === 'Profile'||to.name==='BloodPressure'||to.name==='Medicine' || to.name ==='DataPresentation') {
       ElMessage.error('请先登录')
       next({name:'Login'})
     }else {

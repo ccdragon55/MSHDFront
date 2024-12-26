@@ -9,12 +9,15 @@
       <el-menu-item index="/">首页</el-menu-item>
       <template v-if="isAdmin()">
         <el-menu-item index="/accountManagement">账号管理</el-menu-item>
-        <el-menu-item index="/disasterInformationAdmin">文章管理</el-menu-item>
+        <el-menu-item index="/healthAdviceAdmin">文章管理</el-menu-item>
       </template>
       <template v-else>
+        <!-- <el-menu-item index="/bloodPressure">血压管理</el-menu-item>
+        <el-menu-item index="/medicine">药物管理</el-menu-item>
+        <el-menu-item index="/healthAdvice">健康一言</el-menu-item> -->
         <el-menu-item index="/dataPresentation">数据可视化</el-menu-item>
-        <el-menu-item index="/disasterDataManagement">数据管理</el-menu-item>
-        <el-menu-item index="/disasterInformation">灾情资讯</el-menu-item>
+        <el-menu-item index="/medicine">数据管理</el-menu-item>
+        <el-menu-item index="/healthAdvice">灾情资讯</el-menu-item>
       </template>
       <template v-if="isLoggedIn">
         <el-menu-item index="/profile">{{ userName }}</el-menu-item>

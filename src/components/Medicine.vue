@@ -5,16 +5,40 @@
 
       <div class="searchConditionDiv">
         <p style="margin-top: auto; margin-bottom: auto">查询：</p>
-        <el-input class="conditionInput" v-model="conditionValue" placeholder="根据位置查询" size="small" clearable></el-input>
-        <el-button type="primary" style="height: 40px; margin-right: 5px; margin-top: auto; margin-bottom: auto"
-          @click="searchData">搜索</el-button>
-        <el-button type="danger" style="height: 40px; margin-top: auto; margin-bottom: auto"
-          @click="clearSearchCondition">清空</el-button>
-        <el-button type="primary" style="height: 40px; margin-left: auto; margin-top: auto; margin-bottom: auto"
-          @click="showUploadDisasterDataDialog">上传数据</el-button>
+        <el-input
+          class="conditionInput"
+          v-model="conditionValue"
+          placeholder=""
+          size="small"
+          clearable
+        ></el-input>
+        <el-button
+          type="primary"
+          style="height: 40px; margin-right: 5px; margin-top: auto; margin-bottom: auto"
+          @click="searchByCondition"
+          >搜索</el-button
+        >
+        <el-button
+          type="danger"
+          style="height: 40px; margin-top: auto; margin-bottom: auto"
+          @click="clearSearchCondition"
+          >清空</el-button
+        >
+        <el-button
+          type="primary"
+          style="height: 40px; margin-left: auto; margin-top: auto; margin-bottom: auto"
+          @click="showUploadDisasterDataDialog"
+          >上传数据</el-button
+        >
       </div>
 
-      <el-table v-loading="loading" class="table" :data="info" row-key="dataId">
+      <el-table
+        v-loading="loading"
+        class="table"
+        :data="info"
+        row-key="dataId"
+        :row-class-name="tableRowClassName"
+      >
         <el-table-column prop="id" label="编号" width="80" />
         <el-table-column prop="location" label="参考位置" width="250" />
         <el-table-column prop="date" label="时间" width="150" />
@@ -47,23 +71,195 @@
         </el-table-column>
         <el-table-column prop="describe" label="操作" width="125">
           <template v-slot="scoped">
-            <el-button :value="false" size="small" type="danger"
-              @click="deleteDiasterData(scoped.row.id)">删除</el-button>
+            <el-button
+              :value="false"
+              size="small"
+              type="danger"
+              @click="deleteDiasterData(scoped.row.id)"
+              >删除</el-button
+            >
           </template>
         </el-table-column>
       </el-table>
 
-      <el-pagination class="paging" :page-size="pageSize" :current-page="currentPage" :page-sizes="[5, 10, 15, 20]"
-        layout="sizes,prev,pager,next,jumper,->,total" @current-change="handlePageChange"
-        @size-change="handlePageSizeChange" :total="total">
+      <el-pagination
+        class="paging"
+        :page-size="pageSize"
+        :current-page="currentPage"
+        :page-sizes="[5, 10, 15, 20]"
+        layout="sizes,prev,pager,next,jumper,->,total"
+        @current-change="handlePageChange"
+        @size-change="handlePageSizeChange"
+        :total="total"
+      >
       </el-pagination>
     </el-card>
 
+    <br />
+    <br />
+
+    <el-card class="card" v-show="drugManageVisible">
+      <h2 class="tital">提醒管理</h2>
+
+      <div class="searchConditionDiv">
+        <p style="margin-top: auto; margin-bottom: auto">根据药物名称查询：</p>
+        <el-input
+          class="conditionInput"
+          v-model="conditionValue"
+          placeholder=""
+          size="small"
+          clearable
+        ></el-input>
+        <el-button
+          class="drugAlertBtn"
+          type="primary"
+          style="height: 40px; margin-right: 5px"
+          @click="searchByConditionAlert"
+          >搜索</el-button
+        >
+        <el-button
+          class="drugAlertBtn"
+          type="danger"
+          style="height: 40px"
+          @click="clearSearchConditionAlert"
+          >清空</el-button
+        >
+        <el-button
+          class="drugAlertBtn"
+          type="primary"
+          style="height: 40px; margin-left: auto"
+          @click="addDrugAlertsDialog"
+          >添加用药提醒</el-button
+        >
+      </div>
+
+      <el-table class="table" :data="drugAlerts">
+        <el-table-column type="expand">
+          <template v-slot="props">
+            <div>
+              <p style="margin-left: 20px">提醒id: {{ props.row.alertId }}</p>
+              <p style="margin-left: 20px">药物id: {{ props.row.drugId }}</p>
+              <p style="margin-left: 20px">频率: {{ props.row.frequency }}</p>
+              <p style="margin-left: 20px">剂量: {{ props.row.dosage }} {{ props.row.unit }}</p>
+              <el-button style="margin-left: 20px" type="danger" @click="deleteDrugAlert(props.row)"
+                >删除</el-button
+              >
+            </div>
+          </template>
+        </el-table-column>
+        <el-table-column label="时间" prop="alertTime" />
+        <el-table-column label="药物名" prop="drugName" />
+        <el-table-column label="是否启用" prop="isActive">
+          <template v-slot="scoped">
+            <el-switch
+              v-model="scoped.row.isActive"
+              active-text="是"
+              inactive-text="否"
+              :active-value="1"
+              :inactive-value="0"
+              @change="updateIsAvtive(scoped.row)"
+            />
+          </template>
+        </el-table-column>
+      </el-table>
+
+      <el-pagination
+        class="paging"
+        :page-size="pageSizeAlert"
+        :current-page="currentPageAlert"
+        :page-sizes="[5, 10, 15, 20]"
+        layout="sizes,prev,pager,next,jumper,->,total"
+        @current-change="handleCurrentChangeAlert"
+        @size-change="handleSizeChangeAlert"
+        :total="totalAlert"
+      >
+      </el-pagination>
+    </el-card>
+
+    <el-dialog title="添加用药提醒" v-model="addDrugsDialogVisible" width="50%">
+      <el-form
+        ref="form"
+        :model="addDrugAlert"
+        label-width="150px"
+        style="margin-left: auto; margin-right: auto"
+      >
+        <el-form-item class="dialogInput" label="药物名" prop="drugName">
+          <el-input v-model="addDrugAlert.drugName" placeholder="请输入药物名"></el-input>
+        </el-form-item>
+        <el-form-item class="dialogInput" label="用药频次" prop="frequency">
+          <el-select
+            class="selectCon"
+            v-model="addDrugAlert.frequency"
+            placeholder="用药频次"
+            size="small"
+          >
+            <el-option value="每天" label="每天" />
+            <el-option value="每两天" label="每两天" />
+            <el-option value="每三天" label="每三天" />
+            <el-option value="每四天" label="每四天" />
+            <el-option value="每五天" label="每五天" />
+            <el-option value="每六天" label="每六天" />
+            <el-option value="每周" label="每周" />
+          </el-select>
+        </el-form-item>
+        <el-form-item class="dialogInput" label="单位" prop="unit">
+          <el-select class="selectCon" v-model="addDrugAlert.unit" placeholder="单位" size="small">
+            <el-option value="毫克" label="毫克" />
+            <el-option value="毫升" label="毫升" />
+            <el-option value="微克" label="微克" />
+            <el-option value="克" label="克" />
+            <el-option value="片" label="片" />
+            <el-option value="支" label="支" />
+            <el-option value="粒" label="粒" />
+            <el-option value="包" label="包" />
+            <el-option value="瓶" label="瓶" />
+          </el-select>
+        </el-form-item>
+        <el-form-item class="dialogInput" label="剂量" prop="dosage">
+          <el-input v-model="addDrugAlert.dosage" placeholder="请输入剂量(小数)"></el-input>
+        </el-form-item>
+        <el-form-item class="dialogInput" label="是否启用" prop="isActive">
+          <el-switch
+            v-model="addDrugAlert.isActive"
+            active-text="是"
+            inactive-text="否"
+            active-value="1"
+            inactive-value="0"
+          />
+        </el-form-item>
+        <el-form-item class="dialogInput" label="提醒时间" prop="alertTime">
+          <el-time-picker
+            v-model="addDrugAlert.alertTime"
+            value-format="HH:mm:ss"
+            placeholder="提醒时间"
+          />
+        </el-form-item>
+        <el-form-item align="center">
+          <el-button type="primary" size="small" @click="saveDrugAlert">添加</el-button>
+          <el-button type="info" size="small" @click="closeAddDialog">取消</el-button>
+        </el-form-item>
+      </el-form>
+    </el-dialog>
+
     <el-dialog title="上传灾情数据" v-model="uploadDisasterDataDialogVisable" width="50%">
-      <el-form ref="form" :model="addDisasterData" label-width="150px" style="margin-left: auto; margin-right: auto">
+      <el-form
+        ref="form"
+        :model="addDisasterData"
+        label-width="150px"
+        style="margin-left: auto; margin-right: auto"
+      >
         <el-form-item class="dialogInput" label="上传数据" prop="data">
           <input type="file" @change="handleFileChange" />
         </el-form-item>
+        <!-- <el-form-item class="dialogInput" label="省" prop="time">
+          <el-input v-model="addDisasterData.province" placeholder="请输入省"></el-input>
+        </el-form-item>
+        <el-form-item class="dialogInput" label="市" prop="time">
+          <el-input v-model="addDisasterData.city" placeholder="请输入市"></el-input>
+        </el-form-item>
+        <el-form-item class="dialogInput" label="县" prop="time">
+          <el-input v-model="addDisasterData.county" placeholder="请输入县"></el-input>
+        </el-form-item> -->
         <el-form-item class="dialogInput" label="省市区" prop="time">
           <el-cascader v-model="selectedRegion" :options="pcaTextArr" :props="props" />
         </el-form-item>
@@ -77,21 +273,45 @@
           <el-cascader v-model="selectedSource" :options="sourceOptions" :props="props" />
         </el-form-item>
         <el-form-item class="dialogInput" label="日期" prop="time">
-          <el-date-picker v-model="addDisasterData.date" type="datetime" placeholder="请选择时间"
-            @change="handleDateChange" />
+          <el-date-picker
+            v-model="addDisasterData.date"
+            type="datetime"
+            placeholder="请选择时间"
+            @change="handleDateChange"
+          />
+          <!-- format="yyyy-MM-dd HH:mm:ss" -->
+          <!-- :value-format="'yyyyMMddHHmmss'" -->
+          <!-- value-format="yyyyMMddHHmmss" -->
+          <!-- <el-time-picker v-model="addDisasterData.date" value-format="yyyyMMddHHmmss" placeholder="提醒时间" /> -->
         </el-form-item>
         <el-form-item class="dialogInput" label="载体形式" prop="time">
           <el-select v-model="addDisasterData.fileType" placeholder="Select" style="width: 240px">
-            <el-option v-for="item in fileType" :key="item.value" :label="item.label" :value="item.value" />
+            <el-option
+              v-for="item in fileType"
+              :key="item.value"
+              :label="item.label"
+              :value="item.value"
+            />
           </el-select>
         </el-form-item>
         <el-form-item class="dialogInput" label="灾情编码" prop="time">
           <el-cascader v-model="selectedDisasterType" :options="disasterOptions" :props="props" />
         </el-form-item>
         <el-form-item class="dialogInput" label="描述" prop="time">
-          <el-input v-model="addDisasterData.description" :rows="5" maxlength="1000" placeholder="请输入描述" show-word-limit
-            type="textarea" />
+          <el-input
+            v-model="addDisasterData.description"
+            :rows="5"
+            maxlength="1000"
+            placeholder="请输入描述"
+            show-word-limit
+            type="textarea"
+          />
+          <!-- <el-input v-model="addDisasterData.description" placeholder="请输入描述"></el-input> -->
         </el-form-item>
+
+        <!-- <el-form-item class="dialogInput" label="药物名" prop="drugName">
+          <el-input v-model="addDrugAlert.drugName" placeholder="请输入药物名"></el-input>
+        </el-form-item> -->
 
         <el-form-item align="center">
           <el-button type="primary" size="small" @click="uploadDisasterDataButton">添加</el-button>
@@ -110,27 +330,387 @@ import { onMounted, ref, computed } from 'vue'
 import { pcaTextArr } from 'element-china-area-data'
 import pcas from '@/assets/pcas-code.json' // 使用 import
 
+// 北京市
+// 市辖区
+// 东城区
+// 景山街道
+// 吉祥社区居委会
+interface drug {
+  drugId: string
+  drugName: string
+  frequency: string
+  unit: string
+  dosage: string
+  isActive: string
+  alertId: string
+  alertTime: string
+  eatTime: string
+  isEat: boolean
+}
+let drugs = ref<drug[]>()
+let drugAlerts = ref([])
 const pageSize = ref(5)
 const currentPage = ref(1)
 const total = ref(0)
-
+const pageSizeAlert = ref(5)
+const currentPageAlert = ref(1)
+const totalAlert = ref(0)
 const dialogVisible = ref(false)
 const conditionValue = ref('')
-
+const addDrugsDialogVisible = ref(false)
+const modifyDrug = ref({
+  drugName: ref(''),
+  frequency: ref(''),
+  unit: ref(''),
+  dosage: ref(''),
+  isActive: ref(''),
+  alertTime: ref('')
+})
+const addDrugAlert = ref({
+  drugName: ref(''),
+  frequency: ref('每天'),
+  unit: ref('毫克'),
+  dosage: ref(''),
+  isActive: ref(''),
+  alertTime: ref('')
+})
+const drugManageVisible = ref(false)
 const loading = ref(true)
 
+function checkIsForget(alertTime: String) {
+  console.log(alertTime)
+  const eatDate = alertTime.split(':')
+  const date = new Date()
+  const delHour = date.getHours() - parseInt(eatDate[0])
+  const delMinute = date.getMinutes() - parseInt(eatDate[1])
+  const delSecond = date.getSeconds() - parseInt(eatDate[2])
+  if (delHour > 0) return true
+  else if (delHour == 0)
+    if (delMinute > 0) return true
+    else if (delMinute == 0) if (delSecond > 0) return true
+  return false
+}
 
+const tableRowClassName = ({ row, rowIndex }: { row: drug; rowIndex: number }) => {
+  if (row.isEat === false && checkIsForget(row.alertTime)) {
+    return 'warning-row'
+  } else if (row.isEat === true) {
+    return 'success-row'
+  }
+  return ''
+}
 
+function showDrugManage() {
+  console.log(drugManageVisible.value)
+  drugManageVisible.value = !drugManageVisible.value
+}
+
+function checkIsEat(eatTime: String) {
+  console.log(eatTime)
+  const eatDate = eatTime.split('-')
+  const date = new Date()
+  if (date.getFullYear() - parseInt(eatDate[0]) > 0) return false
+  if (date.getMonth() + 1 - parseInt(eatDate[1]) > 0) return false
+  if (date.getDay() + 1 - parseInt(eatDate[2]) > 0) return false
+  return true
+}
+
+async function eatDrugConfirm(row: any) {
+  let conf = confirm('是否已经服药？')
+  console.log('click')
+  console.log(conf)
+  if (conf) {
+    const date = new Date()
+    const year = date.getFullYear()
+    const month = date.getMonth() + 1
+    const day = date.getDay() + 1
+    row.eatTime = `${year}-${month < 10 ? '0' + month : month}-${day < 10 ? '0' + day : day}`
+    console.log('row.eatTime' + row.eatTime)
+    await instance.post(
+      '/drugAlert/updateDrugAlertEatTimeById',
+      {
+        alertId: row.alertId,
+        eatTime: row.eatTime
+      },
+      {
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      }
+    )
+  } else {
+    row.isEat = false
+  }
+}
+
+async function searchTotalDrug() {
+  await instance
+    .post(
+      '/drug/getPageDrugInfoTotalByDrugName',
+      {
+        uid: localStorage.getItem('uid'),
+        drugName: conditionValue.value
+      },
+      {
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      }
+    )
+    .then((response) => {
+      console.log(response)
+      total.value = response.data.data
+      console.log(total.value)
+    })
+}
+
+async function searchByPage() {
+  console.log('uid:' + localStorage.getItem('uid'))
+  searchTotalDrug()
+  instance
+    .post(
+      '/drug/getPageDrugsInfoByDrugName',
+      {
+        uid: localStorage.getItem('uid'),
+        curPage: currentPage.value,
+        size: pageSize.value,
+        drugName: conditionValue.value
+      },
+      {
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      }
+    )
+    .then((response) => {
+      console.log(response)
+      drugs.value = response.data.data
+      if (drugs.value != undefined) {
+        for (let i = 0; i < drugs.value.length; ++i) {
+          let isEat = checkIsEat(drugs.value[i].eatTime)
+          drugs.value[i]['isEat'] = isEat
+        }
+      }
+    })
+}
+
+async function searchTotalDrugAlert() {
+  await instance
+    .post(
+      '/drug/getPageDrugAlertInfoTotalByDrugName',
+      {
+        uid: localStorage.getItem('uid'),
+        drugName: conditionValue.value
+      },
+      {
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      }
+    )
+    .then((response) => {
+      console.log(response)
+      totalAlert.value = response.data.data
+      console.log(totalAlert.value)
+    })
+}
+
+async function searchAlertByPage() {
+  console.log('uid:' + localStorage.getItem('uid'))
+  searchTotalDrug()
+  instance
+    .post(
+      '/drug/getPageDrugsAlertInfoByDrugName',
+      {
+        uid: localStorage.getItem('uid'),
+        curPage: currentPageAlert.value,
+        size: pageSizeAlert.value,
+        drugName: conditionValue.value
+      },
+      {
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      }
+    )
+    .then((response) => {
+      console.log(response)
+      drugAlerts.value = response.data.data
+    })
+}
 
 onMounted(() => {
+  // searchTotalDrug();
+  // searchByPage();
+  // searchTotalDrugAlert();
+  // searchAlertByPage();
+
   fetchData()
 })
 
+function searchByCondition() {
+  if (!conditionValue.value) ElMessage.error('请输入搜索值')
+  else {
+    searchTotalDrug()
+    searchByPage()
+  }
+}
+
 function clearSearchCondition() {
   conditionValue.value = ''
-  currentPage.value=1
-  info.value.length=0
-  info.value.push(...infoTemp)
+  searchTotalDrug()
+  searchByPage()
+}
+
+function handleSizeChange(newSize: number) {
+  pageSize.value = newSize
+  currentPage.value = 1
+  searchByPage()
+}
+
+function handleCurrentChange(newPage: number) {
+  currentPage.value = newPage
+  searchByPage()
+}
+
+function addDrugAlertsDialog() {
+  addDrugsDialogVisible.value = true
+}
+
+function closeAddDialog() {
+  addDrugsDialogVisible.value = false
+}
+
+async function updateIsAvtive(row: { drugId: any; uid: any; isActive: any }) {
+  console.log(row.isActive)
+  await instance
+    .post(
+      '/drug/updateDrugIsActiveById',
+      {
+        drugId: row.drugId,
+        uid: localStorage.getItem('uid'),
+        isActive: row.isActive
+      },
+      {
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      }
+    )
+    .then(() => {
+      currentPage.value = 1
+      searchTotalDrug()
+      searchByPage()
+    })
+    .catch((error) => {
+      ElMessage.error(error)
+    })
+}
+
+async function deleteDrugAlert(row: { alertId: any; drugId: any }) {
+  await instance
+    .post(
+      '/drug/deleteDrugAndDrugAlertById',
+      {
+        alertId: row.alertId,
+        uid: localStorage.getItem('uid'),
+        drugId: row.drugId
+      },
+      {
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      }
+    )
+    .then(() => {
+      ElMessage.success('添加成功')
+      currentPage.value = 1
+      currentPageAlert.value = 1
+      searchTotalDrug()
+      searchByPage()
+      searchTotalDrugAlert()
+      searchAlertByPage()
+    })
+    .catch((error) => {
+      ElMessage.error(error)
+    })
+}
+
+function handleSizeChangeAlert(newSize: number) {
+  pageSizeAlert.value = newSize
+  currentPageAlert.value = 1
+  searchAlertByPage()
+}
+
+function handleCurrentChangeAlert(newPage: number) {
+  currentPageAlert.value = newPage
+  searchAlertByPage()
+}
+
+function searchByConditionAlert() {
+  if (!conditionValue.value) ElMessage.error('请输入搜索值')
+  else {
+    searchTotalDrugAlert()
+    searchAlertByPage()
+  }
+}
+
+function clearSearchConditionAlert() {
+  conditionValue.value = ''
+  searchTotalDrugAlert()
+  searchAlertByPage()
+}
+
+async function saveDrugAlert() {
+  if (addDrugAlert.value.drugName == '') {
+    ElMessage.error('药物名不能为空')
+  }
+  if (addDrugAlert.value.dosage == '') {
+    ElMessage.error('剂量不能为空')
+  }
+  if (addDrugAlert.value.alertTime == '') {
+    ElMessage.error('提醒时间不能为空')
+  }
+  await instance
+    .post(
+      '/drug/insertDrugAndAlert',
+      {
+        uid: localStorage.getItem('uid'),
+        drugName: addDrugAlert.value.drugName,
+        frequency: addDrugAlert.value.frequency,
+        unit: addDrugAlert.value.unit,
+        dosage: addDrugAlert.value.dosage,
+        isActive: addDrugAlert.value.isActive,
+        alertTime: addDrugAlert.value.alertTime
+      },
+      {
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      }
+    )
+    .then(() => {
+      ElMessage.success('更新成功')
+      if (addDrugAlert.value.isActive == '1') {
+        searchTotalDrug()
+        searchByPage()
+      }
+      searchTotalDrugAlert()
+      searchAlertByPage()
+      addDrugAlert.value = {
+        drugName: '',
+        frequency: '每天',
+        unit: '毫克',
+        dosage: '',
+        isActive: '',
+        alertTime: ''
+      }
+      dialogVisible.value = false
+    })
+    .catch((error) => {
+      ElMessage.error(error)
+    })
+  addDrugsDialogVisible.value = false
 }
 
 interface disasterData {
@@ -732,6 +1312,58 @@ function showUploadDisasterDataDialog() {
   uploadDisasterDataDialogVisable.value = true
 }
 
+async function uploadDisasterData() {
+  if (addDrugAlert.value.drugName == '') {
+    ElMessage.error('药物名不能为空')
+  }
+  if (addDrugAlert.value.dosage == '') {
+    ElMessage.error('剂量不能为空')
+  }
+  if (addDrugAlert.value.alertTime == '') {
+    ElMessage.error('提醒时间不能为空')
+  }
+  await instance
+    .post(
+      '/drug/insertDrugAndAlert',
+      {
+        uid: localStorage.getItem('uid'),
+        drugName: addDrugAlert.value.drugName,
+        frequency: addDrugAlert.value.frequency,
+        unit: addDrugAlert.value.unit,
+        dosage: addDrugAlert.value.dosage,
+        isActive: addDrugAlert.value.isActive,
+        alertTime: addDrugAlert.value.alertTime
+      },
+      {
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      }
+    )
+    .then(() => {
+      ElMessage.success('更新成功')
+      if (addDrugAlert.value.isActive == '1') {
+        searchTotalDrug()
+        searchByPage()
+      }
+      searchTotalDrugAlert()
+      searchAlertByPage()
+      addDrugAlert.value = {
+        drugName: '',
+        frequency: '每天',
+        unit: '毫克',
+        dosage: '',
+        isActive: '',
+        alertTime: ''
+      }
+      dialogVisible.value = false
+    })
+    .catch((error) => {
+      ElMessage.error(error)
+    })
+  addDrugsDialogVisible.value = false
+}
+
 let file: File | null = null
 function handleFileChange(event: Event): void {
   const inputElement = event.target as HTMLInputElement // Type assertion to HTMLInputElement
@@ -821,6 +1453,27 @@ async function uploadDisasterDataButton() {
     ElMessage.error('文件不能为空！')
     return
   }
+  // await instance.post("/fuckyou/upload",{
+  //   province:addDisasterData.value.province,
+  //   city:addDisasterData.value.city,
+  //   county:addDisasterData.value.county,
+  //   town: addDisasterData.value.town,
+  //   village: addDisasterData.value.village,
+  //   date: addDisasterData.value.date,
+  //   source1: addDisasterData.value.source1,
+  //   source2: addDisasterData.value.source2,
+  //   fileType: addDisasterData.value.fileType,
+  //   disasterType1: addDisasterData.value.disasterType1,
+  //   disasterType2: addDisasterData.value.disasterType2,
+  //   disasterType3: addDisasterData.value.disasterType3,
+  // },{
+  //     headers: {
+  //     'Content-Type': 'application/json',
+  //     'token':localStorage.getItem('token')
+  //     },
+  // }).catch((error)=>{
+  // ElMessage.error(error);
+  // })
   uploadDisasterDataDialogVisable.value = false
 }
 
@@ -828,7 +1481,39 @@ function closeuploadDialog() {
   uploadDisasterDataDialogVisable.value = false
 }
 
-interface disasterDataResponse {
+// async function AddRecord() {
+//   if(file){
+//     const formdate=new FormData();
+//     formdate.append('file',file)
+//     const response=await instance.post("/file/uploadAvatar",formdate,{
+//       headers:{
+//         'Content-Type':'multipart/form-data',
+//         'token':localStorage.getItem("token")
+//       },
+//     }).catch((error)=>{
+//       ElMessage.error(error)
+//     })
+//     localStorage.setItem('selfAvatarUrl',response.data.data.avatarUrl)
+//     personalInfo.value.avatarUrl=response.data.data.avatarUrl
+//     EventBus.$emit('changeAvatar',)
+//     ipcRenderer.send('saveSelfAvatar',{id:localStorage.getItem("userId"),url:response.data.data.avatarUrl})
+//   }
+//   await instance.post("/account/update",{
+//     userNickName:modifyAccount.value.nickName,
+//     sex:modifyAccount.value.sex,
+//     personalSignature:modifyAccount.value.personalSignature
+//   },{
+//       headers: {
+//       'Content-Type': 'application/json',
+//       'token':localStorage.getItem('token')
+//       },
+//   }).catch((error)=>{
+//   ElMessage.error(error);
+//   })
+//   dialogVisble.value = false
+// }
+
+interface disasterDataResponce {
   dataSource: string
   date: string
   description: string
@@ -839,19 +1524,19 @@ interface disasterDataResponse {
   location: string
   url: string
 }
-const info = ref<disasterDataResponse[]>([]);
-let infoTemp = [] as disasterDataResponse[];
-function searchData() {
-  currentPage.value=1
-  if (conditionValue.value.trim() == '') {
-    info.value.length = 0
-    info.value.push(...infoTemp)
-  } else {
-    info.value.length = 0
-    info.value.push(...infoTemp.filter((item) => item.location.includes(conditionValue.value)))
-  }
-}
-
+// const info = ref<disasterDataResponce[]>([]);
+//   const infoTemp = ref<disasterDataResponce[]>([]);
+//   function searchData(){
+//   if(conditionValue.value.trim()==''&&infoTemp.value.length>0){
+//     info.value.length=0
+//     info.value.push(...infoTemp.value)
+//   }else{
+//     infoTemp.value.length=0
+//     infoTemp.value.push(...info.value)
+//     info.vau
+//   }
+// }
+// const info=ref([])
 const paginatedArticles = computed(() => {
   const start = (currentPage.value - 1) * pageSize.value
   const end = start + pageSize.value
@@ -876,9 +1561,7 @@ async function fetchData() {
     for (let i = 0; i < info.value.length; i++) {
       info.value[i].date = formatDate(info.value[i].date)
     }
-    infoTemp.length=0
-    infoTemp.push(...info.value)
-    searchData()
+    w
     loading.value = false
   } catch (error) {
     console.error('获取文章失败', error)
@@ -926,11 +1609,6 @@ async function deleteDiasterData(id: any) {
       for (let i = 0; i < info.value.length; i++) {
         if (info.value[i].id == id) {
           info.value.splice(i, 1)
-        }
-      }
-      for (let i = 0; i < infoTemp.length; i++) {
-        if (infoTemp[i].id == id) {
-          infoTemp.splice(i, 1)
         }
       }
       currentPage.value = 1
