@@ -3,7 +3,10 @@
   <head>
     <meta charset="UTF-8">
     <link rel="icon" href="/ZHXK.ico">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" 
+
+    content="width=device-width; initial-scale=1.0; default-src 'self'; connect-src 'self' http://10.29.61.159:8088; script-src 'self'; style-src 'self' 'unsafe-inline';img-src * data:;media-src * data:;"
+    >
     <title>智慧心康</title>
   </head>
   <body>
@@ -11,3 +14,6 @@
     <script type="module" src="/src/main.ts"></script>
   </body>
 </html>
+
+<!-- http-equiv="Content-Security-Policy" -->
+<!-- content="width=device-width; initial-scale=1.0; default-src 'self'; connect-src 'self' http://10.29.61.159:8088; script-src 'self'; style-src 'self' 'unsafe-inline';img-src * data:;media-src * data:;" -->

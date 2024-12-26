@@ -84,10 +84,10 @@ const next = async () => {
     ElMessage.error('用户名不得小于2位！')
     return
   }
-  if (verificationCode.value == "") {
-    ElMessage("请输入验证码")
-    return
-  }
+  // if (verificationCode.value == "") {
+  //   ElMessage("请输入验证码")
+  //   return
+  // }
   try {
     //检测用户名和手机号是否已存在
     const response = await instance.post('/user/auth/find', {
@@ -114,21 +114,21 @@ const next = async () => {
   }
   try {
     //验证验证码
-    const response = await instance.post('/user/auth/message', {
-      userName: username.value,
-      phoneNumber: phonenumber.value,
-      messageCode: verificationCode.value,
-    }, {
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    });
-    const code = response.data.code;
-    if (code != 0) {
-      ElMessage('验证码或手机号错误')
-      verificationCode.value = ''
-      return
-    }
+    // const response = await instance.post('/user/auth/message', {
+    //   userName: username.value,
+    //   phoneNumber: phonenumber.value,
+    //   messageCode: verificationCode.value,
+    // }, {
+    //   headers: {
+    //     'Content-Type': 'application/json',
+    //   },
+    // });
+    // const code = response.data.code;
+    // if (code != 0) {
+    //   ElMessage('验证码或手机号错误')
+    //   verificationCode.value = ''
+    //   return
+    // }
     localStorage.setItem('phoneNumber', phonenumber.value)
     localStorage.setItem('userName', username.value)
     localStorage.setItem('messageCode', verificationCode.value)

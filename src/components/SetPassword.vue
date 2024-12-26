@@ -43,7 +43,7 @@ const next = async () => {
           userName: userName,
           phoneNumber: phoneNumber,
           userPassword: password.value,
-          messageCode: messageCode
+          // messageCode: messageCode
         }
         )
         ElMessage("注册成功")

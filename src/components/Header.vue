@@ -1,7 +1,7 @@
 <template>
   <div class="header-nav-container">
     <header>
-      <h2>智慧心康</h2>
+      <h2>多源异构灾情数据管理系统</h2>
     </header>
 
     <el-menu :default-active="currentRoute" class="el-menu-demo" mode="horizontal" :ellipsis="false"
@@ -12,9 +12,12 @@
         <el-menu-item index="/healthAdviceAdmin">文章管理</el-menu-item>
       </template>
       <template v-else>
-        <el-menu-item index="/bloodPressure">血压管理</el-menu-item>
+        <!-- <el-menu-item index="/bloodPressure">血压管理</el-menu-item>
         <el-menu-item index="/medicine">药物管理</el-menu-item>
-        <el-menu-item index="/healthAdvice">健康一言</el-menu-item>
+        <el-menu-item index="/healthAdvice">健康一言</el-menu-item> -->
+        <el-menu-item index="/dataPresentation">数据可视化</el-menu-item>
+        <el-menu-item index="/medicine">数据管理</el-menu-item>
+        <el-menu-item index="/healthAdvice">灾情资讯</el-menu-item>
       </template>
       <template v-if="isLoggedIn">
         <el-menu-item index="/profile">{{ userName }}</el-menu-item>

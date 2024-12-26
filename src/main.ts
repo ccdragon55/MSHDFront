@@ -7,10 +7,11 @@ import router from './router'
 import ElementPlus from 'element-plus'
 import zhCn from 'element-plus/es/locale/lang/zh-cn'
 import 'element-plus/dist/index.css'
+// import Region from 'v-region'
 
 const app = createApp(App)
 
-app.use(createPinia()).use(router)//.use(ElementPlus)
+app.use(createPinia()).use(router)//.use(Region)//.use(ElementPlus)
 app.use(ElementPlus, {
     locale: zhCn,
   })
