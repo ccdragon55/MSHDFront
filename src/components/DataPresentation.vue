@@ -91,6 +91,7 @@ import 'echarts/extension/bmap/bmap';
 import getMap from '../map';
 import instance from '@/axios';
 import axios from 'axios';
+import moment from 'moment';
 
 // 示例数据
 const info = [
@@ -107,6 +108,10 @@ const formatData = (data) => {
     index
   }));
 };
+
+function formatDate(str) {
+  return moment(str, 'YYYYMMDDHHmmss').format('YYYY-MM-DD HH:mm:ss');
+}
 
 /*
 <br> 数据：<br> 
@@ -244,7 +249,7 @@ onMounted(async () => {
     const element = data[i];
     await getLatAndLngByAddr(element.location, i)
     info[i].push(element.location)
-    info[i].push(element.date)
+    info[i].push(formatDate(element.date))
     info[i].push(element.dataSource)
     info[i].push(element.diasterType)
     info[i].push(element.diasterCode)
