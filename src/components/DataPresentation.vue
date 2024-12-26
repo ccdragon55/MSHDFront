@@ -79,16 +79,6 @@
           点击下载文件
         </button>
       </div>
-
-      <!-- <div class="drawer-div-item">
-        <div class="drawer-div-tag">群公告:</div>
-        <div style="width: 80%; max-height: 20%">
-          <el-text>{{ groupInfo.groupNotice }}</el-text>
-        </div>
-      </div>
-      <div style="width: 100%; display: flex; justify-content: center" v-if="isGroupOwner()">
-        <el-button type="primary" @click="showDialog">修改群信息</el-button>
-      </div> -->
     </el-scrollbar>
   </el-drawer>
 
