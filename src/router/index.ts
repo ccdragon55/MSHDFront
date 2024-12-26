@@ -93,7 +93,7 @@ router.beforeEach((to, from, next) => {
   } 
   // 检查用户是否已登录
   else if(token===null){
-    if (to.name === 'Profile'||to.name==='BloodPressure'||to.name==='Medicine'||to.name=='HealthAdvice'||to.name=='DataPresentation') {
+    if (to.name === 'Profile'||to.name==='BloodPressure'||to.name==='Medicine' || to.name ==='DataPresentation') {
       ElMessage.error('请先登录')
       next({name:'Login'})
     }else {

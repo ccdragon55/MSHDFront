@@ -1,47 +1,7 @@
 <template>
-  <!-- <div class="article-list-container">
-    <el-row :gutter="20" class="article-list">
-      <el-col v-for="article in paginatedArticles" :key="article.id" :span="24">
-        <el-card shadow="hover" class="article-item">
-          <div class="article-content-wrapper" @click="viewArticle(article)">
-            <div  style="display: flex;width: 100%;height: auto;">
-              <img :src="article.image" alt="Article Image" class="article-image" />
-            </div>
-
-            <div class="article-content">
-              <h3>{{ article.title }}</h3>
-              <p>{{ article.description }}</p>
-            </div>
-          </div>
-        </el-card>
-      </el-col>
-    </el-row>
-
-    <el-pagination
-      v-model="currentPage"
-      :page-size="pageSize"
-      :total="articles.length"
-      layout="prev, pager, next"
-      @current-change="handlePageChange"
-      background
-      hide-on-single-page
-      class="pagination"
-    />
-
-    <el-dialog v-model="dialogVisible" width="50%" title="一言详情" append-to-body>
-      <div v-if="selectedArticle">
-        <h2 style="text-align: center">{{ selectedArticle.title }}</h2>
-        !-- <h2>{{ selectedArticle.title }}</h2> --
-
-        <div  style="display: flex;width: 100%;height: auto;">
-          <img :src="selectedArticle.image" alt="Article Image" class="dialog-article-image" />
-        </div>
-        <p class="indented-text">{{ selectedArticle.content }}</p>
-      </div>
-    </el-dialog>
-  </div> -->
   <div style="display: flex;width: auto;height: auto;">
-    <div style="width: 50%;height: auto;">
+    <!-- 文章列表部分 -->
+    <div style="width: 70%;height: auto; padding-left: 50px;">
       <div class="article-list-container">
         <el-row :gutter="20" class="article-list">
           <el-col v-for="article in paginatedArticles" :key="article.id" :span="24">
@@ -60,13 +20,20 @@
           </el-col>
         </el-row>
 
-        <el-pagination v-model="currentPage" :page-size="pageSize" :total="articles.length" layout="prev, pager, next"
-          @current-change="handlePageChange" background hide-on-single-page class="pagination" />
+        <el-pagination
+          v-model="currentPage"
+          :page-size="pageSize"
+          :total="articles.length"
+          layout="prev, pager, next"
+          @current-change="handlePageChange"
+          background
+          hide-on-single-page
+          class="pagination"
+        />
 
-        <el-dialog v-model="dialogVisible" width="50%" title="一言详情" append-to-body>
+        <el-dialog v-model="dialogVisible" width="80%" title="一言详情" append-to-body>
           <div v-if="selectedArticle">
             <h2 style="text-align: center">{{ selectedArticle.title }}</h2>
-            <!-- <h2>{{ selectedArticle.title }}</h2> -->
 
             <div style="display: flex;width: 100%;height: auto;">
               <img :src="selectedArticle.image" alt="Article Image" class="dialog-article-image" />
@@ -76,30 +43,35 @@
         </el-dialog>
       </div>
     </div>
-    <div style="width: 50%;height: auto;margin-top: 4%;">
-      <div class="chat-container">
-        <h2 style="text-align: center;">灾情AI助手</h2>
-        <div class="messages">
-          <div v-for="(message, index) in messages" :key="index" class="message">
-            <div class="message-content" :class="message.from === 'user' ? 'user' : 'ai'">
-              <p>{{ message.text }}</p>
-            </div>
+
+    <!-- AI问答部分（右侧侧边栏） -->
+    <div v-show="isSidebarVisible" class="chat-container">
+      <h2 style="text-align: center;">灾情AI助手</h2>
+      <div class="messages">
+        <div v-for="(message, index) in messages" :key="index" class="message">
+          <div class="message-content" :class="message.from === 'user' ? 'user' : 'ai'">
+            <p>{{ message.text }}</p>
           </div>
         </div>
+      </div>
 
-        <div class="input-container">
-          <input v-model="userMessage" @keyup.enter="sendMessage" placeholder="请输入消息..." />
-          <button style="margin: 0;" @click="sendMessage">发送</button>
-        </div>
+      <div class="input-container">
+        <input v-model="userMessage" @keyup.enter="sendMessage" placeholder="请输入消息..." />
+        <button style="margin: 0;" @click="sendMessage">发送</button>
       </div>
     </div>
-  </div>
 
+    <!-- 侧边栏切换按钮 -->
+    <div class="sidebar-toggle" @click="toggleSidebar">
+      <div style="padding-top: 13px;">AI助手</div>
+    </div>
+  </div>
 </template>
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
 import instance from '../axios'
+import axios from 'axios'
 
 interface Article {
   id: number
@@ -158,31 +130,39 @@ interface AiInfo {
 const userMessage = ref('');
 const messages = ref<AiInfo[]>([]);
 
+// 控制AI助手侧边栏的显示与隐藏
+const isSidebarVisible = ref(false);
+
+const toggleSidebar = () => {
+  isSidebarVisible.value = !isSidebarVisible.value;
+}
+
 const sendMessage = async () => {
   if (userMessage.value.trim()) {
     // 将用户消息添加到消息列表
     messages.value.push({ from: 'user', text: userMessage.value });
-    
+
     try {
       // 调用后端接口来获取 AI 的回应
-      const response = await instance.post('/chat', {
+      const response = await axios.post('http://10.29.86.126:8088/chat', {
         message: userMessage.value,
       });
+      messages.value.push({ from: 'ai', text: response.data.reply });
+      userMessage.value = '';
 
       // 将 AI 的回复添加到消息列表
-      messages.value.push({ from: 'ai', text: response.data.reply });
     } catch (error) {
       console.error("Error:", error);
       messages.value.push({ from: 'ai', text: "抱歉，出现了问题，请稍后再试。" });
     }
-    
+
     // 清空输入框
-    userMessage.value = '';
   }
 };
 </script>
 
 <style scoped>
+
 .article-list-container {
   max-width: 450px;
   margin-left: auto;
@@ -251,9 +231,7 @@ p {
   margin-left: auto;
   margin-right: auto;
   width: 100%;
-  /* 设置为100%以占满父容器 */
   text-align: center;
-  /* 确保内容居中 */
   background-color: transparent;
 }
 
@@ -273,17 +251,23 @@ p {
   text-align: center;
 }
 
+/* AI助手部分 */
 .chat-container {
-  width: 70%;
-  margin: 0 auto;
-  padding: 20px;
+  position: fixed;
+  right: 0;
+  top: 50px;
+  width: 350px;
+  height: 600px;
+  background-color: #f9f9f9;
   border: 1px solid #ddd;
   border-radius: 8px;
-  background-color: #f9f9f9;
+  padding: 20px;
+  box-shadow: -2px 2px 10px rgba(0, 0, 0, 0.1);
 }
 
 .messages {
-  max-height: 400px;
+  height: 490px;
+  max-height: 490px;
   overflow-y: auto;
   margin-bottom: 10px;
 }
@@ -330,6 +314,24 @@ button {
 }
 
 button:hover {
+  background-color: #0056b3;
+}
+
+/* 侧边栏切换按钮 */
+.sidebar-toggle {
+  height: 45px;
+  position: fixed;
+  right: 20px;
+  bottom: 20px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  padding: 15px 15px;
+  border-radius: 50%;
+  cursor: pointer;
+}
+
+.sidebar-toggle:hover {
   background-color: #0056b3;
 }
 </style>
